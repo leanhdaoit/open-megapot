@@ -1,7 +1,7 @@
 {
   "name": "open-megapot",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Open Megapot — an independent frontend for the Megapot on-chain lottery with USDC on Base.",
   "scripts": {
