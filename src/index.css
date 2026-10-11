@@ -1,0 +1,193 @@
+/**
+ * ---
+ * @customize  Open Megapot's shared Aurora surfaces, page motion, and focus
+ *             styles. Keep light/dark contrast and reduced-motion overrides.
+ * ---
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Apply the configured system font stack to the whole app — without this
+     the body falls back to the platform default (Times New Roman on Windows). */
+  html {
+    @apply font-sans antialiased;
+  }
+
+  /* Single, consistent focus ring across every interactive element. Tab through
+     the app and you should always see where focus is. The ring uses
+     `box-shadow`, so each element keeps its native border-radius (pills stay
+     round, cards stay rounded-2xl) — no `rounded-*` override here. */
+  :where(button, a, [role="button"], summary, input, select, textarea):focus-visible {
+    @apply outline-none ring-2 ring-brand-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950;
+  }
+}
+
+/* Open Megapot: shared aurora surfaces. Motion is decorative and finite. */
+@layer base {
+  body {
+    margin: 0;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  input[type="range"] {
+    min-height: 32px;
+    cursor: pointer;
+  }
+  input:disabled {
+    cursor: not-allowed;
+  }
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    @apply rounded-xl;
+  }
+  summary {
+    @apply rounded-xl;
+  }
+}
+
+@layer components {
+  .app-shell {
+    background:
+      radial-gradient(ellipse at 10% 0%, #d1fae588, transparent 45%),
+      radial-gradient(ellipse at 95% 35%, #cffafe66, transparent 40%), #f8faf9;
+  }
+  .card {
+    @apply rounded-3xl border border-emerald-900/10 bg-white dark:border-emerald-200/10 dark:bg-zinc-900;
+    box-shadow: 0 8px 32px -24px rgb(6 78 59 / 0.3);
+  }
+  .card-pad {
+    @apply card p-5;
+  }
+  .card-pad-lg {
+    @apply card p-5 sm:p-7;
+  }
+  .page-content {
+    animation: page-arrive 350ms ease-out both;
+  }
+  .page-intro {
+    @apply mb-8 max-w-3xl;
+  }
+  .page-intro h1 {
+    @apply mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl;
+    text-wrap: balance;
+  }
+  .eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-primary-700 dark:text-brand-primary-300;
+  }
+  .empty-state {
+    @apply py-14 text-center;
+  }
+  .empty-orbit {
+    @apply mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-brand-primary-200 bg-brand-primary-50 text-3xl text-brand-primary-700 dark:border-brand-primary-800 dark:bg-brand-primary-950 dark:text-brand-primary-300;
+  }
+  .prize-hero {
+    @apply relative isolate overflow-hidden rounded-3xl px-5 py-12 text-center text-white sm:px-8 sm:py-14;
+    background:
+      radial-gradient(ellipse at 90% 0%, #0e749077, transparent 65%),
+      linear-gradient(125deg, #022c22, #065f46 60%, #064e3b);
+    box-shadow: 0 20px 45px -25px #04785788;
+  }
+  .aurora-orbit {
+    position: absolute;
+    pointer-events: none;
+    width: 28rem;
+    height: 28rem;
+    border-radius: 50%;
+    border: 1px solid #6ee7b744;
+    box-shadow:
+      0 0 60px #34d39918,
+      inset 0 0 60px #67e8f918;
+    animation: orbit-settle 5s ease-out both;
+  }
+  .aurora-orbit-one {
+    left: -14rem;
+    top: -14rem;
+  }
+  .aurora-orbit-two {
+    right: -16rem;
+    bottom: -18rem;
+    width: 34rem;
+    height: 34rem;
+  }
+  .hero-spark {
+    @apply pointer-events-none absolute right-5 top-4 text-xl text-cyan-200 sm:right-8 sm:top-8 sm:text-3xl;
+    animation: spark-settle 4s ease-out both;
+  }
+  .om-button:not(:disabled):active {
+    transform: scale(0.98);
+  }
+  .ticket-card {
+    border-style: dashed;
+  }
+}
+
+/* Muted labels must remain readable against the dark card surfaces. */
+.dark .app-shell .text-zinc-500 {
+  color: #a1a1aa;
+}
+
+.dark .app-shell {
+  background:
+    radial-gradient(ellipse at 10% 0%, #064e3b33, transparent 45%),
+    radial-gradient(ellipse at 95% 35%, #164e6322, transparent 40%), #090e0d;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .om-button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+@keyframes page-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes orbit-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes spark-settle {
+  from {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: accessibility override must beat utility and wallet styles. */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: honor reduced motion across component utilities. */
+    transition: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: prevent smooth scrolling under reduced motion. */
+    scroll-behavior: auto !important;
+  }
+  .om-button:not(:disabled):active {
+    transform: none;
+  }
+}
