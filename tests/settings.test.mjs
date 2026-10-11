@@ -8,7 +8,10 @@ const values = new Map();
 before(async () => {
   server = await createServer({
     server: { middlewareMode: true, hmr: { server: createHttpServer() } },
-    define: { 'import.meta.env.VITE_MEGAPOT_API_KEY': '"mpk_live_environment"' },
+    define: {
+      'import.meta.env.VITE_MEGAPOT_API_KEY': '"mpk_live_environment"',
+      'import.meta.env.VITE_FALLBACK_MEGAPOT_API_KEY': '""',
+    },
   });
   globalThis.window = Object.assign(new EventTarget(), {
     localStorage: {
@@ -96,7 +99,10 @@ test('blocked storage falls back to env and reports save errors', () => {
 test('blank environment and no local key produce anonymous request headers', async () => {
   const anonymousServer = await createServer({
     server: { middlewareMode: true, hmr: { server: createHttpServer() } },
-    define: { 'import.meta.env.VITE_MEGAPOT_API_KEY': '"  "' },
+    define: {
+      'import.meta.env.VITE_MEGAPOT_API_KEY': '"  "',
+      'import.meta.env.VITE_FALLBACK_MEGAPOT_API_KEY': '""',
+    },
   });
   const original = globalThis.fetch;
   try {

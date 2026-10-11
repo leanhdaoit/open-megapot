@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test:settings": "node --test tests/settings.test.mjs",
+    "test:api-fallback": "node --test tests/api-fallback.test.mjs",
     "test:referral": "node --test tests/referral.test.mjs",
     "lint": "biome lint",
     "format": "biome format --write",

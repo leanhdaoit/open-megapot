@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_WALLETCONNECT_PROJECT_ID?: string;
   /** Optional Megapot Data API key (mpk_live_…). Anonymous tier without one. */
   readonly VITE_MEGAPOT_API_KEY?: string;
+  /** Optional browser key used once after a documented authentication rejection. */
+  readonly VITE_FALLBACK_MEGAPOT_API_KEY?: string;
 }
 
 interface ImportMeta {

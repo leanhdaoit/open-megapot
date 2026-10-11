@@ -61,11 +61,23 @@ can't accidentally ship without setting attribution.
 | `VITE_RPC_URL` | Base / Base Sepolia HTTPS RPC | Defaults to public RPC — rate-limited, fine for local dev only |
 | `VITE_WALLETCONNECT_PROJECT_ID` | WalletConnect Cloud project ID | WC QR + Rainbow + MetaMask mobile disabled; injected wallets + Coinbase Wallet still work |
 | `VITE_MEGAPOT_API_KEY` | Data API key (browser tier) — [Get a key](https://megapot.io/dashboard) | Empty = anonymous tier (10/min, 500/day) |
+| `VITE_FALLBACK_MEGAPOT_API_KEY` | Optional browser key for authentication failover | Empty = no key failover |
 | `VITE_API_BASE_URL` | Override Data API URL — set to `/api/megapot` for the proxy tier | Empty = `https://api.megapot.io/v1` |
 | `VITE_APP_NAME` | Label in wallet-connect modals | Falls back to `"Open Megapot"` |
 | `MEGAPOT_API_KEY` | Server-side Data API key (proxy tier only) — [Get a key](https://megapot.io/dashboard) | Required if you deploy `server/proxy.ts` |
 
 Full reference + commented defaults: [`.env.example`](./.env.example).
+
+API requests use the saved Settings key, then `VITE_MEGAPOT_API_KEY`. If neither
+exists, they use `VITE_FALLBACK_MEGAPOT_API_KEY`, or anonymous access if all are blank.
+When the selected key returns `401 invalid_api_key`, `403 revoked_api_key`, or
+`403 key_environment_mismatch`, the client tries a distinct fallback key once for
+that request. The fallback must match the API host. It does not replace the saved
+Settings key; subsequent requests start with the selected key again.
+Other errors do not switch keys: `429 rate_limited` and `503 upstream_unavailable`
+retain the bounded retry/backoff policy and respect `Retry-After`.
+Both `VITE_*` keys are included in the public browser bundle. This is an app-level
+failover policy based on the [documented authentication errors](https://llms.megapot.io/data-api#error-envelope).
 
 ## File map
 

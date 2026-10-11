@@ -34,6 +34,9 @@
  *             dashboard if it leaks. For a privileged server-side key,
  *             proxy the API through your own backend instead of fetching
  *             directly.
+ *             A distinct VITE_FALLBACK_MEGAPOT_API_KEY can recover from a
+ *             documented key rejection once per request. Rate limits and
+ *             upstream failures retain the normal retry/backoff policy.
  * ---
  */
 
@@ -310,9 +313,8 @@ export function formatApiError(e: unknown): string {
 
 // ─── Internals ───────────────────────────────────────────────────────────────
 
-function authHeaders(): HeadersInit {
+function authHeaders(key: string | undefined): HeadersInit {
   const headers: Record<string, string> = { Accept: 'application/json' };
-  const key = getApiKey();
   if (key) headers.Authorization = `Bearer ${key}`;
   return headers;
 }
@@ -328,7 +330,26 @@ async function get<T>(
       if (v !== undefined) url.searchParams.set(k, String(v));
     }
   }
-  const res = await fetch(url, { headers: authHeaders(), signal: options?.signal });
+  const primaryKey = getApiKey();
+  const fallbackKey = import.meta.env.VITE_FALLBACK_MEGAPOT_API_KEY?.trim() || undefined;
+  try {
+    return await fetchJson<T>(url, primaryKey ?? fallbackKey, options?.signal);
+  } catch (error) {
+    const keyRejected =
+      error instanceof ApiError &&
+      ((error.status === 401 && error.code === 'invalid_api_key') ||
+        (error.status === 403 &&
+          (error.code === 'revoked_api_key' || error.code === 'key_environment_mismatch')));
+    if (!primaryKey || !fallbackKey || fallbackKey === primaryKey || !keyRejected) throw error;
+    // Keep the same URL and cancellation signal. Never persist a replacement
+    // for the user's Settings key or retry the failed key in a loop.
+    options?.signal?.throwIfAborted();
+    return fetchJson<T>(url, fallbackKey, options?.signal);
+  }
+}
+
+async function fetchJson<T>(url: URL, key: string | undefined, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(url, { headers: authHeaders(key), signal });
   if (!res.ok) {
     // Pull the request id and retry-after from headers regardless of body
     // shape — a 5xx with a non-JSON body shouldn't strip them.
@@ -340,7 +361,21 @@ async function get<T>(
 
     let body: ApiErrorBody;
     try {
-      body = (await res.json()) as ApiErrorBody;
+      const parsed = (await res.json()) as Partial<ApiErrorBody> | null;
+      if (
+        !parsed?.error ||
+        typeof parsed.error.code !== 'string' ||
+        typeof parsed.error.message !== 'string'
+      ) {
+        throw new Error('Invalid error envelope');
+      }
+      body = {
+        error: {
+          ...parsed.error,
+          request_id:
+            typeof parsed.error.request_id === 'string' ? parsed.error.request_id : requestId,
+        },
+      };
     } catch {
       body = {
         error: {
