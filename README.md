@@ -1,5 +1,7 @@
 # Open Megapot
 
+Live app: [open-megapot.vercel.app](https://open-megapot.vercel.app/)
+
 - Independent, customizable frontend for the Megapot on-chain lottery
 - USDC-denominated on Base — mainnet (chain ID 8453) or Sepolia (84532)
 - React 19 + wagmi v2 + Vite 6 + Tailwind v3 — zero backend required

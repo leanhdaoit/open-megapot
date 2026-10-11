@@ -127,6 +127,24 @@ export function Home({ onNavigate }: { onNavigate: (k: NavKey) => void }) {
           <PrizeTiers tiers={tiers} footnote={tiersFootnote} />
         </div>
       </div>
+
+      <section className="card-pad-lg space-y-3" aria-labelledby="open-source-title">
+        <h2 id="open-source-title" className="text-lg font-semibold tracking-tight">
+          {COPY.homeOpenSourceTitle}
+        </h2>
+        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          {COPY.homeOpenSourceDescription}
+        </p>
+        <a
+          href="https://github.com/leanhdaoit/open-megapot"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex rounded-sm text-sm font-medium text-brand-primary-700 underline underline-offset-4 hover:text-brand-primary-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-primary-500 dark:text-brand-primary-300 dark:hover:text-brand-primary-200"
+        >
+          {COPY.homeOpenSourceLink}
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </section>
     </div>
   );
 }

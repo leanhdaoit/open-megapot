@@ -34,6 +34,10 @@ export const COPY = {
   claimable: 'Claimable',
   homeTitle: 'A little possibility. A bigger tomorrow.',
   homeDescription: 'Explore the live prize pool and join the next drawing on Base.',
+  homeOpenSourceTitle: 'Open source. Built to be shared.',
+  homeOpenSourceDescription:
+    'Explore the code, contribute improvements, or fork Open Megapot to make it your own.',
+  homeOpenSourceLink: 'View source on GitHub',
   playTitle: 'Make your next move.',
   playDescription: 'Choose your numbers, find your rhythm, and enter the next drawing.',
   ticketsTitle: 'Your tickets. Your possibilities.',
