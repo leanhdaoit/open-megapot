@@ -9,6 +9,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal } from '@/components/common/Modal';
 import { Ball } from '@/components/lottery/Ball';
+import { TicketImport } from '@/components/lottery/TicketImport';
 import { TicketPicker } from '@/components/lottery/TicketPicker';
 import {
   combinations,
@@ -223,6 +224,22 @@ export function TicketBuilder({
           </button>
         </section>
       )}
+      <TicketImport
+        ballMax={ballMax}
+        bonusballMax={bonusballMax}
+        capacity={MAX_MANAGED_TICKETS - tickets.length}
+        onImport={(imported) => {
+          commit([
+            ...tickets,
+            ...imported.map((ticket, index) => ({
+              ...ticket,
+              id: tickets.length + index,
+              selected: true,
+            })),
+          ]);
+          setPage(Math.floor(tickets.length / (5 * GROUPS_PER_PAGE)));
+        }}
+      />
       <section
         className="rounded-2xl border border-brand-primary-200 bg-brand-primary-50 p-4 dark:border-brand-primary-900 dark:bg-brand-primary-950/40"
         aria-label="Guaranteed prizes overview"
@@ -283,11 +300,18 @@ export function TicketBuilder({
                   <select
                     aria-label={`Group ${group + 1} bonus`}
                     className="rounded border bg-white p-2 dark:bg-zinc-800"
-                    value={rows[0].bonusball}
+                    value={
+                      rows.every((ticket) => ticket.bonusball === rows[0].bonusball)
+                        ? rows[0].bonusball
+                        : ''
+                    }
                     onChange={(event) =>
                       commit(updateGroupBonus(tickets, group, Number(event.target.value)))
                     }
                   >
+                    <option value="" disabled>
+                      Mixed
+                    </option>
                     {Array.from({ length: bonusballMax }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
                         {n}
